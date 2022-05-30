@@ -75,7 +75,9 @@ def main():
     train_dl = data.DataLoader(train_set, args.batch_size, shuffle=True,
                                num_workers=args.num_workers, persistent_workers=True, pin_memory=True)
     wandb_logger = pl.loggers.WandbLogger(project=args.name)
-    push_wandb_config(wandb_logger, args) # push config to wandb for archiving
+
+    # push config to wandb for archiving, but don't push --training-dir value to WandB
+    push_wandb_config(wandb_logger, args, omit=['training_dir']) 
 
     demo_dl = data.DataLoader(train_set, args.num_demos, shuffle=True)
 
