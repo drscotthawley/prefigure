@@ -13,11 +13,11 @@ def main():
     #   3. Any new command-line arguments override whatever was set earlier
     args = get_all_args()
 
+    print("Args = \n",args)
+
+    print(f"Pushing args to wandb run {args.name}")
     wandb_logger = pl.loggers.WandbLogger(project=args.name)
-
     wandb_log_config(wandb_logger, args) # push config to wandb for use later
-
-    wandb.finish()
 
 if __name__ == '__main__':
     main()
