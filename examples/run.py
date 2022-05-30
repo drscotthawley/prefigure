@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
-from prefigure.prefigure import get_all_args, wandb_log_config
+from prefigure.prefigure import get_all_args, push_wandb_config
 
 import pytorch_lightning as pl
 import wandb
+
 
 # Usage: ./run.py --name test-prefigure
 
@@ -17,7 +18,7 @@ def main():
 
     print(f"Pushing args to wandb run {args.name}")
     wandb_logger = pl.loggers.WandbLogger(project=args.name)
-    wandb_log_config(wandb_logger, args) # push config to wandb for use later
+    push_wandb_config(wandb_logger, args, omit=['training_dir']) # push config to wandb for use later
 
 if __name__ == '__main__':
     main()

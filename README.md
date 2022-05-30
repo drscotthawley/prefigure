@@ -33,7 +33,7 @@ The order of precedence is "command line args override WandB, which overrides th
 In your run/training code, add this near the top:
 
 ```Python
-from prefigure.prefigure import get_all_args, wandb_log_config
+from prefigure.prefigure import get_all_args, push_wandb_config
 ```
 
 ### 2nd line to add
@@ -50,14 +50,14 @@ Further down in your code, comment-out (or delete) *all* your command-line argum
 and then right after you define the wandb logger, run
 
 ```Python
-wandb_log_config(wandb_logger, args)
+push_wandb_config(wandb_logger, args)
 ```
 
 
 ## Sample usage (code_):
 
 ```Python
-from prefigure import get_all_args, wandb_log_config
+from prefigure import get_all_args, push_wandb_config
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
     train_dl = data.DataLoader(train_set, args.batch_size, shuffle=True,
                                num_workers=args.num_workers, persistent_workers=True, pin_memory=True)
     wandb_logger = pl.loggers.WandbLogger(project=args.name)
-    wandb_log_config(wandb_logger, args) # push config to wandb for archiving
+    push_wandb_config(wandb_logger, args) # push config to wandb for archiving
 
     demo_dl = data.DataLoader(train_set, args.num_demos, shuffle=True)
 
