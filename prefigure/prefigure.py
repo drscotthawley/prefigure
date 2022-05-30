@@ -102,5 +102,5 @@ def get_all_args():
 
 def wandb_log_config(wandb_logger, args): 
     "save config to wandb (for possible retrieval later)"
-    if hasattr(wandb_logger.experiment.config, 'update'): 
+    if hasattr(wandb_logger.experiment.config, 'update'): #On multi-GPU runs, only process rank 0 has this attribute!
         wandb_logger.experiment.config.update(args)
