@@ -22,18 +22,18 @@ The option `--wandb-config <url>` pulls previous runs' configs off wandb, where 
 e.g. `--wandb-config='https://wandb.ai/drscotthawley/delete-me/runs/1m2gh3o1?workspace=user-drscotthawley'`
 (i.e., whatever URL you grab from your browser window when looking at an individual run.)  
 
-**NOTE: the `--wandb-config` thing can only pull from WandB runs that used configger, i.e. that have logged a "wandb config push".**
+**NOTE: the `--wandb-config` thing can only pull from WandB runs that used prefigure, i.e. that have logged a "wandb config push".**
 
-Any command line args you specify will override any settings from WandB and/or the `.ini` file. 
+Any command line args you specify will override any settings from WandB and/or the `.ini` file.
 
-The order of precedence is "command line args override WandB, which overrides the .ini file". 
+The order of precedence is "command line args override WandB, which overrides the .ini file".
 
 
 ### 1st line to add
 In your run/training code, add this near the top:
 
 ```Python
-from configger.configger import get_all_args, wandb_log_config
+from prefigure.prefigure import get_all_args, wandb_log_config
 ```
 
 ### 2nd line to add
@@ -57,7 +57,7 @@ wandb_log_config(wandb_logger, args)
 ## Sample usage (code_):
 
 ```Python
-from configger import get_all_args, wandb_log_config
+from prefigure import get_all_args, wandb_log_config
 
 
 def main():

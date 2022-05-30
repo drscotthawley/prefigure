@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='configger',
+    name='prefigure',
     version='0.0.1',
     description='Run configuration management utils: combines configparser, argparse, and wandb.API',
-    url='https://github.com/drscotthawley/configger',
+    url='https://github.com/drscotthawley/prefigure',
     author='Scott H. Hawley',
     author_email='scott.hawley@belmont.edu',
     license='MIT',
-    packages=['configger'],
+    packages=['prefigure'],
     install_requires=['argparse',
                       'configparser',
                       'wandb',

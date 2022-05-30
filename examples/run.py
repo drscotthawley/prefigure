@@ -4,7 +4,7 @@ from prefigure.prefigure import get_all_args, wandb_log_config
 import pytorch_lightning as pl
 import wandb
 
-# Usage: ./run.py --name test-configger
+# Usage: ./run.py --name test-prefigure
 
 def main():
     # Config setup. Order of preference will be:
