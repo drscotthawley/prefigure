@@ -11,7 +11,8 @@ setup(
     packages=['configger'],
     install_requires=['argparse',
                       'configparser',
-                      'wandb'
+                      'wandb',
+                      'pytorch_lightning'
                       ],
 
     classifiers=[
