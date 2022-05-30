@@ -13,6 +13,7 @@ import argparse
 import configparser
 import wandb
 import sys
+import copy
 
 DEFAULTS_FILE = 'defaults.ini'
 
@@ -51,23 +52,16 @@ def setup_args(defaults, defaults_text='',):
 
     # add other command-line args using defaults .ini file
     for key, value in defaults.items():
-        if (key in ['wandb_config']): break
+        if (key in ['wandb_config','config_file']): break
         help = ""
         for i in range(len(defaults_text)):  # get the help string from defaults_text
             if key in defaults_text[i]:
                 help = defaults_text[i-1].replace('# ','')
         argname = '--'+key.replace('_','-')
-        val = Path(value) if ('_dir' in value) else arg_eval(value)
+        val = Path(value) if ((type(value) == str) and ('_dir' in value)) else arg_eval(value)
         p.add_argument(argname, default=val, type=type(val), help=help)
 
     args = p.parse_args() 
-
-    if (args.name is None) and ('name' in defaults):
-        args.name = Path(defaults['name'])
-
-    if None in [args.training_dir, args.name]:
-        print("Required arguments: --training_dir <dir> --name <name>")
-        sys.exit(1)
         
     return args
     
@@ -80,8 +74,22 @@ def pull_wandb_config(wandb_config, defaults):
     entity, project, run_id = splits[3], splits[4], splits[-1].split('?')[0]
     run = api.run(f"{entity}/{project}/{run_id}")
     for key, value in run.config.items():
-        defaults[key] = arg_eval(value)
+        if 'OMITTED' != value: defaults[key] = arg_eval(value)
     return defaults
+
+
+
+def push_wandb_config(wandb_logger, args, omit=[]): 
+    """
+    save config to wandb (for possible retrieval later)
+    Omit: list of args you don't want pushed to wandb; will push an empty string for these
+    """
+    if hasattr(wandb_logger.experiment.config, 'update'): #On multi-GPU runs, only process rank 0 has this attribute!
+        copy_args = copy.deepcopy(args)
+        for var_str in omit:  # don't push certain reserved settings to wandb
+            if hasattr(copy_args, var_str):
+                setattr(copy_args, var_str, 'OMITTED')
+        wandb_logger.experiment.config.update(copy_args)
 
 
 def get_all_args():
@@ -99,8 +107,3 @@ def get_all_args():
 
     return args
 
-
-def wandb_log_config(wandb_logger, args): 
-    "save config to wandb (for possible retrieval later)"
-    if hasattr(wandb_logger.experiment.config, 'update'): #On multi-GPU runs, only process rank 0 has this attribute!
-        wandb_logger.experiment.config.update(args)
