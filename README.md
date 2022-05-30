@@ -1,4 +1,4 @@
-# configger
+# prefigure
 
 > Run-configuration management utils: combines configparser, argparse, and wandb.API
 
@@ -9,22 +9,24 @@ Combines argparse, configparser, and wandb.API
 ## Install:
 
 ```bash
-pip install configger
+pip install prefigure
 ```
 
 
 ## Instructions:
 
-Put `defaults.ini` in your main directory.  Grab my `configger/` directory. Then you'll be adding only 3 lines of code to your existing run script (and deleting or commenting-out a bunch of others).  
+All your usual command line args (with the exception of `--name` and `--training-dir`) are now to be specified in a `defaults.ini` file -- see `examples/` for an example.  
+A different `.ini` file can be specified via  `--config-file`.
 
-What you get from this are new config-archiving capabilities.  Options `--config-file` and `--wandb-config` (which pulls previous runs' configs off wandb). The latter overrides the former, and any new cmd line options override both of those.
-
-You can use `--wandb-config` and then the url of any one of your runs to override those defaults:
-
+The option `--wandb-config <url>` pulls previous runs' configs off wandb, where `<url> is the url of any one of your runs to override those defaults:
 e.g. `--wandb-config='https://wandb.ai/drscotthawley/delete-me/runs/1m2gh3o1?workspace=user-drscotthawley'`
 (i.e., whatever URL you grab from your browser window when looking at an individual run.)  
 
 **NOTE: the `--wandb-config` thing can only pull from WandB runs that used configger, i.e. that have logged a "wandb config push".**
+
+Any command line args you specify will override any settings from WandB and/or the `.ini` file. 
+
+The order of precedence is "command line args override WandB, which overrides the .ini file". 
 
 
 ### 1st line to add
