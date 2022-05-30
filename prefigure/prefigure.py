@@ -39,34 +39,29 @@ def read_defaults(defaults_file=DEFAULTS_FILE):
     return defaults, defaults_text
 
 
-def setup_args(defaults, defaults_text=''):
+def setup_args(defaults, defaults_text='',):
     """combine defaults from .ini file and add parseargs arguments, 
         with help pull from .ini"""
     p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  
-    p.add_argument('--wandb-config', required=False,  
-                   help='wandb url to pull config from')
-    p.add_argument('--training-dir', type=Path, required=False,
-                   help='training data directory')
-    p.add_argument('--name', type=str, required=False,
-                   help='name of the run')
     p.add_argument('--config-file', required=False, default=DEFAULTS_FILE, #added so it appears on -h list
         help='name of local configuration (.ini) file')
+    p.add_argument('--wandb-config', required=False,  
+                   help='wandb url to pull config from')
 
-    # add other command-line args using defaults
+
+    # add other command-line args using defaults .ini file
     for key, value in defaults.items():
-        if (key in ['training_dir', 'name', 'wandb_config']): break
+        if (key in ['wandb_config']): break
         help = ""
         for i in range(len(defaults_text)):  # get the help string from defaults_text
             if key in defaults_text[i]:
                 help = defaults_text[i-1].replace('# ','')
         argname = '--'+key.replace('_','-')
-        val = arg_eval(value)
+        val = Path(value) if ('_dir' in value) else arg_eval(value)
         p.add_argument(argname, default=val, type=type(val), help=help)
 
     args = p.parse_args() 
 
-    if (args.training_dir is None) and ('training_dir' in defaults):
-        args.training_dir = Path(defaults['training_dir'])
     if (args.name is None) and ('name' in defaults):
         args.name = Path(defaults['name'])
 
