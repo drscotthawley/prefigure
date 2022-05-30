@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from configger.configger import get_all_args, wandb_log_config
+from prefigure.prefigure import get_all_args, wandb_log_config
 
 import pytorch_lightning as pl
 import wandb

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='configger',
-    version='0.1.0',
+    version='0.0.1',
     description='Run configuration management utils: combines configparser, argparse, and wandb.API',
     url='https://github.com/drscotthawley/configger',
     author='Scott H. Hawley',
