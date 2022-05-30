@@ -9,7 +9,7 @@ setup(
     version='0.0.2',
     description='Run configuration management utils: combines configparser, argparse, and wandb.API',
     long_description=long_description,
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
     url='https://github.com/drscotthawley/prefigure',
     author='Scott H. Hawley',
     author_email='scott.hawley@belmont.edu',
