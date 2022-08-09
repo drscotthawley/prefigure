@@ -14,6 +14,7 @@ import configparser
 import wandb
 import sys
 import copy
+import distutils
 
 DEFAULTS_FILE = 'defaults.ini'
 
@@ -60,7 +61,12 @@ def setup_args(defaults, defaults_text='',):
                 help = defaults_text[i-1].replace('# ','')
         argname = '--'+key.replace('_','-')
         val = Path(value) if ((type(value) == str) and ('_dir' in value)) else arg_eval(value)
-        p.add_argument(argname, default=val, type=type(val), help=help)
+        val_type = type(val)
+        if val_type != type(True):   # gotta handle boolean values specially when dealing with argparse
+            p.add_argument(argname, default=val, type=val_type, help=help)
+        else:
+            #val_type = bool(distutils.util.strtobool(val))
+            p.add_argument(argname, type=val_type, nargs='?', const=True, default=False, help=help)
 
     args = p.parse_args() 
         
