@@ -33,6 +33,7 @@ def read_defaults(defaults_file=DEFAULTS_FILE):
         help='name of local configuration (.ini) file')
     config_file = p.parse_known_args()[0].config_file
     configp = configparser.ConfigParser()
+    configp.optionxform = str                 # don't change uppercase to lowercase
     configp.read(config_file)
     defaults = dict(configp.items('DEFAULTS'))
     with open(config_file) as f:
