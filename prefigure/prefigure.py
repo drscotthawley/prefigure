@@ -62,11 +62,15 @@ def setup_args(defaults, defaults_text='',):
         argname = '--'+key.replace('_','-')
         val = Path(value) if ((type(value) == str) and ('_dir' in value)) else arg_eval(value)
         val_type = type(val)
-        if val_type != type(True):   # gotta handle boolean values specially when dealing with argparse
+        print(f"argname: {argname}, val: {val}, val_type: {val_type}")
+        if val is None: # None is weird in Python
+            p.add_argument(argname, type=str, nargs='?', const=None, default=None, help=help)
+        elif (val_type != type(True)):   # gotta handle boolean values specially when dealing with argparse
             p.add_argument(argname, default=val, type=val_type, help=help)
-        else:
+        else: # normal string/int/etc
             #val_type = bool(distutils.util.strtobool(val))
             p.add_argument(argname, type=val_type, nargs='?', const=True, default=False, help=help)
+
 
     args = p.parse_args() 
         

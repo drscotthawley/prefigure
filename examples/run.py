@@ -16,6 +16,8 @@ def main():
 
     print("Args = \n",args)
 
+    assert args.name is not None, "In this example, we make you you set 'name'"
+
     print(f"Pushing args to wandb run {args.name}")
     wandb_logger = pl.loggers.WandbLogger(project=args.name)
     push_wandb_config(wandb_logger, args, omit=['training_dir']) # push config to wandb for use later

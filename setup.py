@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='prefigure',
-    version='0.0.6',
+    version='0.0.7',
     description='Run configuration management utils: combines configparser, argparse, and wandb.API',
     long_description=long_description,
     long_description_content_type='text/markdown',
