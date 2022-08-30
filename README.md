@@ -53,7 +53,13 @@ and then right after you define the wandb logger, run
 push_wandb_config(wandb_logger, args)
 ```
 
-### (Optional:) 4th line to add: OFC
+### (Optional:) 4th & 5ths line to add: OFC
+```
+from prefigure import OFC
+...
+ofc = OFC(args)
+
+```
 Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (pronounced like something one says in frustration when one realizes one has forgetten to set a variable properly). 
 This tracks any changes to arguments made to a separate file (by default `ofc.ini`) and
 updates those args dyanmically when changes to that file are made. 
