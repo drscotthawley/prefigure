@@ -65,7 +65,7 @@ This tracks any changes to arguments made to a separate file (by default `ofc.in
 updates those args dyanmically when changes to that file are made. 
 
 
-## Sample usage (code_):
+## Sample usage:
 
 ```Python
 from prefigure import get_all_args, push_wandb_config, OFC
