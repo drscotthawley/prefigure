@@ -33,7 +33,7 @@ The order of precedence is "command line args override WandB, which overrides th
 In your run/training code, add this near the top:
 
 ```Python
-from prefigure.prefigure import get_all_args, push_wandb_config
+from prefigure import get_all_args, push_wandb_config
 ```
 
 ### 2nd line to add
@@ -55,7 +55,7 @@ push_wandb_config(wandb_logger, args)
 
 ### (Optional:) 4th & 5ths line to add: OFC
 ```Python
-from prefigure import OFC
+from prefigure import OFC # NOTE: BREAKING CHANGE in v.0.0.8. Used to be from prefigure.prefigure
 ...
 ofc = OFC(args)
 
