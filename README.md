@@ -98,11 +98,9 @@ def main():
 
         # OFC usage (optional)
         if hasattr(args,'check_ofc_every') and (step > 0) and (step % args.check_ofc_every == 0):
-            changes_dict = ofc.update()   # check for changes. NOTE: any parts of "args" namespace get updated automatically
-            if {} != changes_dict:        # other things to do with changes: log them to wandb
-                for key_old in changes_dict.keys():
-                    changes_dict['args/'+key_old] = changes_dict.pop(key_old) # give args their own section
-                wandb.log(changes_dict, step=step)  # log arg value changes to wandb
+            changes_dict = ofc.update()   # check for changes. NOTE: all "args" updated automatically
+            if {} != changes_dict:        # other things to do with changes: log to wandb
+                wandb.log({'args/'+k:v for k,v in changes_dict.items()}, step=step) 
 
         # For easy drop-in OFC capability, keep using args.XXXX for all variables....)
         if (step > 0) and (step % args.checkpoint_every == 0):... 
