@@ -53,11 +53,16 @@ and then right after you define the wandb logger, run
 push_wandb_config(wandb_logger, args)
 ```
 
+### (Optional:) 4th line to add: OFC
+Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (pronounced like something one says in frustration when one realizes one has forgetten to set a variable properly). 
+This tracks any changes to arguments made to a separate file (by default `ofc.ini`) and
+updates those args dyanmically when changes to that file are made. 
+
 
 ## Sample usage (code_):
 
 ```Python
-from prefigure import get_all_args, push_wandb_config
+from prefigure import get_all_args, push_wandb_config, OFC
 
 
 def main():
@@ -67,6 +72,7 @@ def main():
     #   2. if --wandb-config is given, pull config from wandb to override defaults
     #   3. Any new command-line arguments override whatever was set earlier
     args = get_all_args()
+    ofc = OFC(args)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     torch.manual_seed(args.seed)
@@ -80,5 +86,13 @@ def main():
     push_wandb_config(wandb_logger, args, omit=['training_dir']) 
 
     demo_dl = data.DataLoader(train_set, args.num_demos, shuffle=True)
+    ...
+    # in training loop
+    #     
+    changes_dict = ofc.update()   # any parts of "args" namespace get updated.
+    if {} != changes_dict: wandb.log(changes_dict, step=step)
 
+    # For easy drop-in OFC capability, use args.XXXX for all variables, e.g. 
+    if (step > 0) and (step % args.checkpoint_every == 0):... 
+        do_stuff()
 ```
