@@ -78,7 +78,8 @@ def main():
     #   2. if --wandb-config is given, pull config from wandb to override defaults
     #   3. Any new command-line arguments override whatever was set earlier
     args = get_all_args()
-    ofc = OFC(args)
+
+    ofc = OFC(args)  # optional
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     torch.manual_seed(args.seed)
@@ -97,8 +98,8 @@ def main():
 
         # OFC usage (optional)
         if hasattr(args,'check_ofc_every') and (step > 0) and (step % args.check_ofc_every == 0):
-            changes_dict = ofc.update()   # NOTE: any parts of "args" namespace get updated automatically
-            if {} != changes_dict:        # keep a record using wandb
+            changes_dict = ofc.update()   # check for changes. NOTE: any parts of "args" namespace get updated automatically
+            if {} != changes_dict:        # other things to do with changes: log them to wandb
                 for key_old in changes_dict.keys():
                     changes_dict['args/'+key_old] = changes_dict.pop(key_old) # give args their own section
                 wandb.log(changes_dict, step=step)  # log arg value changes to wandb
