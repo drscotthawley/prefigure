@@ -30,7 +30,6 @@ class OFC(object):
                    
     def update(self):
         "find out which variables have changed"
-        print("Checking ofc file....")
         save_args_dict = vars(self.args)
         config = configparser.ConfigParser()
         config.read(self.ofc_file)
@@ -40,7 +39,7 @@ class OFC(object):
         for key, val in new_args_dict.items():
             val = arg_eval(val)
             if val != save_args_dict[key]:
-                print(f"{key} has been changed to {val}")
+                print(f"OFC: {key} has been changed to {val}")
                 changed[key] = val
                 vars(args)[key] = val    # NOTE: THIS will overwrite values in args. 
         return changed   # changed dict can be used for wandb logging of changes

@@ -87,12 +87,17 @@ def main():
 
     demo_dl = data.DataLoader(train_set, args.num_demos, shuffle=True)
     ...
-    # in training loop
-    #     
-    changes_dict = ofc.update()   # any parts of "args" namespace get updated.
-    if {} != changes_dict: wandb.log(changes_dict, step=step)
+        #inside training loop
 
-    # For easy drop-in OFC capability, use args.XXXX for all variables, e.g. 
-    if (step > 0) and (step % args.checkpoint_every == 0):... 
-        do_stuff()
+        # OFC usage (optional)
+        if hasattr(args,'check_ofc_every') and (step > 0) and (step % args.check_ofc_every == 0)
+        changes_dict = ofc.update()   # NOTE: any parts of "args" namespace get updated automatically
+        if {} != changes_dict:        # keep a record using wandb
+            for key_old in changes_dict.keys():
+                changes_dict['args/'+key_old] = changes_dict.pop(key_old) # give args their own section
+            wandb.log(changes_dict, step=step)  # log arg value changes to wandb
+
+        # ( For easy drop-in OFC capability, keep using args.XXXX for all variables....)
+        if (step > 0) and (step % args.checkpoint_every == 0):... 
+            do_stuff()
 ```
