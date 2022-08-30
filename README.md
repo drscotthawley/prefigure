@@ -54,7 +54,7 @@ push_wandb_config(wandb_logger, args)
 ```
 
 ### (Optional:) 4th & 5ths line to add: OFC
-```
+```Python
 from prefigure import OFC
 ...
 ofc = OFC(args)
