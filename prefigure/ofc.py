@@ -37,12 +37,12 @@ class OFC(object):
 
         changed = {}
         for key, val in new_args_dict.items():
-            if ',' in val: break  # changes to list variables are not supported yet
-            val = arg_eval(val)
-            if val != save_args_dict[key]:
-                print(f"\n  OFC: {key} has been changed to {val}")
-                changed[key] = val
-                vars(self.args)[key] = val    # NOTE: THIS will overwrite values in args. 
+            if not (',' in val):  # changes to list variables are not supported yet
+                val = arg_eval(val)
+                if val != save_args_dict[key]:
+                    print(f"\n  OFC: {key} has been changed to {val}")
+                    changed[key] = val
+                    vars(self.args)[key] = val    # NOTE: THIS will overwrite values in args. 
         return changed   # changed dict can be used for wandb logging of changes
 
 
