@@ -103,10 +103,10 @@ def push_wandb_config(wandb_logger, args, omit=[]):
         wandb_logger.experiment.config.update(copy_args)
 
 
-def get_all_args():
+def get_all_args(defaults_file=DEFAULTS_FILE):
     " Config setup."
     #   1. Default settings are in defaults ini (or some other config) file
-    defaults, defaults_text = read_defaults()
+    defaults, defaults_text = read_defaults(defaults_file=defaults_file)
     args = setup_args(defaults, defaults_text=defaults_text)  
 
     #   2. if --wandb-config is given, pull config from wandb to override defaults
@@ -118,3 +118,8 @@ def get_all_args():
 
     return args
 
+
+if __name__ == '__main__':
+    # quick test
+    args = get_all_args(defaults_file='../examples/defaults.ini')
+    print("args = ",args)
