@@ -55,7 +55,7 @@ push_wandb_config(wandb_logger, args)
 
 ### (Optional:) 4th & 5ths line to add: OFC
 ```Python
-from prefigure import OFC # NOTE: BREAKING CHANGE in v.0.0.8. Used to be from prefigure.prefigure
+from prefigure import OFC
 ...
 ofc = OFC(args)
 
