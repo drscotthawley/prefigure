@@ -41,7 +41,7 @@ class OFC(object):
             if val != save_args_dict[key]:
                 print(f"OFC: {key} has been changed to {val}")
                 changed[key] = val
-                vars(args)[key] = val    # NOTE: THIS will overwrite values in args. 
+                vars(self.args)[key] = val    # NOTE: THIS will overwrite values in args. 
         return changed   # changed dict can be used for wandb logging of changes
 
 
