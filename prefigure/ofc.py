@@ -37,8 +37,8 @@ class OFC(object):
 
         changed = {}
         for key, val in new_args_dict.items():
-            val = arg_eval(val)
             if ',' in val: break  # changes to list variables are not supported yet
+            val = arg_eval(val)
             if val != save_args_dict[key]:
                 print(f"\n  OFC: {key} has been changed to {val}")
                 changed[key] = val
