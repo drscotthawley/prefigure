@@ -14,7 +14,7 @@ class OFC(object):
     "On-the-Fly Control: Saves args to a new file, updates 'args' when changes occur to file"
     def __init__(self, args, ofc_file='ofc.ini'):
         "NOTE: ofc_file should be given a unique name if multiple similar runs are occuring"
-        self.ofc_file = ofc_file
+        self.ofc_file = args.name+'-'+ofc_file
         self.args = args
         self.section_name = 'STEERABLES'
         self.save()
@@ -49,6 +49,7 @@ if __name__ == '__main__':
     # testing
     import time
     args = get_all_args(defaults_file='../examples/defaults.ini')
+    args.name = 'test'
     ofc = OFC(args)
     while True:
         print("\nargs = ",args)
