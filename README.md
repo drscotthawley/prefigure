@@ -62,7 +62,7 @@ ofc = OFC(args)
 ```
 Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (pronounced like something one says in frustration when one realizes one has forgetten to set a variable properly). 
 This tracks any changes to arguments made to a separate file (by default `ofc.ini`) and
-updates those args dyanmically when changes to that file are made. 
+updates those args dyanmically when changes to that file are made. It can also (optionally) log those changes to WandB (and when they occur); see sample usage below.
 
 
 ## Sample usage:
