@@ -4,12 +4,12 @@
 
 Capabilities for archiving run settings and pulling configurations from previous runs.  With just 3 lines of code 😎 : the import, the arg setup, & the wandb push.  
 
-Combines argparse, configparser, and wandb.API
+Combines argparse, configparser, and wandb.API.  WandB logging is done via `pytorch_lightning`'s [WandBLogger](https://pytorch-lightning.readthedocs.io/en/stable/extensions/generated/pytorch_lightning.loggers.WandbLogger.html). 
 
 ## Install:
 
 ```bash
-pip install prefigure
+pip install prefigure wandb pytorch_lightning
 ```
 
 
@@ -66,10 +66,13 @@ updates those args dyanmically when changes to that file are made. It can also (
 
 
 ## Sample usage:
+Here's a rough outline of some pytorch code. 
 
 ```Python
+import torch
+import torch.utils.data as data
 from prefigure import get_all_args, push_wandb_config, OFC
-
+import pytorch_lightning as pl
 
 def main():
 
