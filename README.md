@@ -47,7 +47,7 @@ Further down in your code, comment-out (or delete) *all* your command-line argum
 
 
 ### 3rd line to add
-and then right after you define the wandb logger, run
+and then right after you define the [wandb logger](https://pytorch-lightning.readthedocs.io/en/stable/extensions/generated/pytorch_lightning.loggers.WandbLogger.html), run
 
 ```Python
 push_wandb_config(wandb_logger, args)
