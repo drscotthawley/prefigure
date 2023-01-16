@@ -43,7 +43,7 @@ Near the top of your `main()`, add this:
 args = get_all_args()
 ```
 
-Further down in your code, comment-out (or delete) *all* your command-line arguments. If you want different command-line arguments, then add or change them in defaults.ini.  The 'help' string for these is provided via  comment in the line preceding your variable. (see defaults.ini for examples)
+Further down in your code, comment-out (or delete) *all* your command-line arguments (e.g. ArgParse calls). If you want different command-line arguments, then add or change them in defaults.ini.  The 'help' string for these is provided via  comment in the line preceding your variable. See [examples/defaults.ini](https://github.com/drscotthawley/prefigure/blob/main/examples/defaults.ini) for examples.
 
 
 ### 3rd line to add
