@@ -60,7 +60,7 @@ from prefigure import OFC
 ofc = OFC(args)
 
 ```
-Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (pronounced like something one says in frustration when one realizes one has forgetten to set a variable properly). 
+Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (OFC, [pronounced like](https://getyarn.io/yarn-clip/3e363bee-37f1-4df8-995a-61fe4509e64f) what you say when you realize you forget to set a variable properly). 
 This tracks any changes to arguments made to a separate file (by default `ofc.ini`) and
 updates those args dyanmically when changes to that file are made. It can also (optionally) log those changes to WandB (and when they occur); see sample usage below.
 
