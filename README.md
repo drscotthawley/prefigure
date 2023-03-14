@@ -18,6 +18,8 @@ pip install prefigure wandb pytorch_lightning
 All your usual command line args (with the exception of `--name` and `--training-dir`) are now to be specified in a `defaults.ini` file -- see `examples/` for an example.  
 A different `.ini` file can be specified via  `--config-file`.
 
+> Versions 0.0.9 and later: A `.gin` can be instead be used for `--config-file`, in which case the sytem *only runs gin and nothing else*.
+
 The option `--wandb-config <url>` pulls previous runs' configs off wandb, where `<url> is the url of any one of your runs to override those defaults:
 e.g. `--wandb-config='https://wandb.ai/drscotthawley/delete-me/runs/1m2gh3o1?workspace=user-drscotthawley'`
 (i.e., whatever URL you grab from your browser window when looking at an individual run.)  

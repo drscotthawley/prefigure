@@ -26,6 +26,11 @@ def arg_eval(value):
         val = value
     return val
 
+def setup_gin(gin_file):
+    "called by read_defaults"
+    import gin
+    gin.parse_config_file(gin_file)
+    return {}, '' # read_defaults is expected to return two things
 
 def read_defaults(defaults_file=DEFAULTS_FILE):
     "read the defaults file, setup defaults dict"
@@ -33,12 +38,16 @@ def read_defaults(defaults_file=DEFAULTS_FILE):
     p.add_argument('--config-file', required=False, default=defaults_file,
         help='name of local configuration (.ini) file')
     config_file = p.parse_known_args()[0].config_file
-    configp = configparser.ConfigParser()
-    configp.optionxform = str                 # don't change uppercase to lowercase
-    configp.read(config_file)
-    defaults = dict(configp.items('DEFAULTS'))
-    with open(config_file) as f:
-        defaults_text = f.readlines()
+    if '.gin' == Path(config_file).suffix:  # "full gin compatibility" = ignore all other prefigure code ;-)
+        print(f"prefigure: Switching to gin mode for config file {config_file}")
+        defaults, defaults_text = setup_gin(config_file)
+    else:
+        configp = configparser.ConfigParser()
+        configp.optionxform = str                 # don't change uppercase to lowercase
+        configp.read(config_file)
+        defaults, defaults_text = dict(configp.items('DEFAULTS')), ''
+        with open(config_file) as f:
+            defaults_text = f.readlines()
     return defaults, defaults_text
 
 
@@ -48,9 +57,8 @@ def setup_args(defaults, defaults_text='',):
     p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  
     p.add_argument('--config-file', required=False, default=DEFAULTS_FILE, #added so it appears on -h list
         help='name of local configuration (.ini) file')
-    p.add_argument('--wandb-config', required=False,  
-                   help='wandb url to pull config from')
-
+    p.add_argument('--name', required=False, default=None, help='name of the run')
+    p.add_argument('--wandb-config', required=False,  help='wandb url to pull config from')
 
     # add other command-line args using defaults .ini file
     for key, value in defaults.items():
@@ -60,6 +68,7 @@ def setup_args(defaults, defaults_text='',):
             if key in defaults_text[i]:
                 help = defaults_text[i-1].replace('# ','')
         argname = '--'+key.replace('_','-')
+        if '--name' == argname: continue
         val = Path(value) if ((type(value) == str) and ('_dir' in value)) else arg_eval(value)
         val_type = type(val)
         #print(f"argname: {argname}, val: {val}, val_type: {val_type}")
@@ -70,7 +79,6 @@ def setup_args(defaults, defaults_text='',):
         else: # normal string/int/etc
             #val_type = bool(distutils.util.strtobool(val))
             p.add_argument(argname, type=val_type, nargs='?', const=True, default=False, help=help)
-
 
     args = p.parse_args() 
         
@@ -105,6 +113,7 @@ def push_wandb_config(wandb_logger, args, omit=[]):
 
 def get_all_args(defaults_file=DEFAULTS_FILE):
     " Config setup."
+    args = {}
     #   1. Default settings are in defaults ini (or some other config) file
     defaults, defaults_text = read_defaults(defaults_file=defaults_file)
     args = setup_args(defaults, defaults_text=defaults_text)  

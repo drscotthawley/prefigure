@@ -3,9 +3,19 @@ from prefigure.prefigure import get_all_args, push_wandb_config
 
 import pytorch_lightning as pl
 import wandb
+import gin
 
 
 # Usage: ./run.py --name test-prefigure
+#  ^ the "test-prefigure" is the name of the wandb run
+
+@gin.configurable 
+def test_print(msg='Standard run'):
+    print(f"test_print: msg = {msg}")
+
+@gin.configurable 
+def get_name(name=None):
+    return name
 
 def main():
     # Config setup. Order of preference will be:
@@ -14,7 +24,10 @@ def main():
     #   3. Any new command-line arguments override whatever was set earlier
     args = get_all_args()
 
+    test_print()
+
     print("Args = \n",args)
+    if args.name is None: args.name = get_name()
 
     assert args.name is not None, "In this example, we make you you set 'name'"
 

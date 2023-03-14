@@ -1,0 +1,2 @@
+test_print.msg = 'Now running with gin'
+get_name.name = 'test-prefigure'
