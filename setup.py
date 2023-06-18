@@ -19,7 +19,8 @@ setup(
                       'configparser',
                       'wandb',
                       'pytorch_lightning',
-                      'gin-config'
+                      'gin-config',
+                      'gradio',
                       ],
 
     classifiers=[
