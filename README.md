@@ -121,3 +121,25 @@ def main():
         if (step > 0) and (step % args.checkpoint_every == 0):... 
             do_stuff()
 ```
+
+## Extra Tricks 
+
+### Imports & Other File Formats
+`prefigure` defaults to .ini files, but will also read .json and .gin files.  It will also import
+said files that are specified as values -- *if* these parameters are listed via a separate "imports" parameter, as in the following example: 
+```
+$ cat examples/harmonai-tools.ini 
+[DEFAULTS]
+# model config fle
+model_config = ../../harmonai-tools/harmonai_tools/configs/model_configs/diffusion_autoencoders/seanet_32_32_diffae.json
+
+# dataset config file 
+dataset_config = ../../harmonai-tools/harmonai_tools/configs/dataset_configs/s3_wds_example.json
+
+imports = model_config, dataset_config(shazbot)
+```
+In this case, both `args.model_config` and `args.dataset_config` will have their filename value string *replaced* by the dict(s) specified in the .json files given.  If they were not listed under `imports`, then the filename value will remain and no import will occur. 
+
+
+### Lightning
+If you want to pass around the `ofc` object deep inside other libraries, e.g., PyTorch Lightning, I've had success overloading Lightning's `Trainer` object, e.g. `trainer.ofc = ofc`.  Then do something like `module.ofc.update()` inside the training routine.  For example, cf. [my tweet about this](https://twitter.com/drscotthawley/status/1650369425122512897).  
