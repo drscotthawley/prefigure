@@ -119,7 +119,7 @@ def main():
 
         # For easy drop-in OFC capability, keep using args.XXXX for all variables....)
         if (step > 0) and (step % args.checkpoint_every == 0):... 
-            do_stuff()
+            do_stuff(lr=args.learning_rate)  # your code here
 ```
 
 ## Extra Tricks 
