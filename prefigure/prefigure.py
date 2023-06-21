@@ -84,22 +84,22 @@ def read_defaults(defaults_file=DEFAULTS_FILE):
     return defaults, defaults_text
 
 
-def parse_files_specified(args, debug=False):
+def parse_imports(args, debug=True):
     "If the user has supplied args which are themselves config files, parse them"
-    # loop over everytning in args:
-    orig_args = copy.deepcopy(args)
+    if not hasattr(args, 'imports'): return args
+    orig_args = copy.deepcopy(args)  # not good to edit args while looping over args
     for key, value in vars(orig_args).items():
-        if debug: print(f"parse_files_specified: key = {key}, value = {value}")
+        if debug: print(f"parse_imports: key = {key}, value = {value}")
         if (key in ['wandb_config','config_file']): continue  # don'e read in the basics a second time
-        if isinstance(value, str) and Path(value).suffix in ['.ini','.json','.gin']:
+        if key in args.imports and isinstance(value, str) and Path(value).suffix in ['.ini','.json','.gin']:
             # if the arg is a string and the string is a path to a config file
             # then parse it and add the args to the namespace
-            if debug: print(f"parse_files_specified: Parsing config file {value}")
+            if debug: print(f"parse_imports: Parsing config file {value}")
             new_value, value_text = read_config(value)
             # for any of those, delete the namespace attribute before adding it below
             #delattr(args, key)
 
-            if debug: print(f"parse_files_specified: Replacing the following in the namespace: {key}:{new_value}",)
+            if debug: print(f"parse_imports: Replacing the following in the namespace: {key}:{new_value}",)
             #args = argparse.Namespace(**vars(args), **defaults)
             setattr(args, key, new_value)
     return args
@@ -185,7 +185,7 @@ def get_all_args(defaults_file=DEFAULTS_FILE):
 
 
     #  4. If any of the args are themselves config files, parse them
-    args = parse_files_specified(args)
+    args = parse_imports(args)
 
     return args
 
