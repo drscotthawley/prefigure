@@ -38,7 +38,7 @@ def main():
 
     ofc = OFC(args, gui=True) 
     print(f"OFC: Public link is {ofc.public_link}")
-    wandb.log({"gradio_link": wandb.Html(f'OFC Gradio URL is <a href="{ofc.public_link}" target="_blank">{ofc.public_link}</a>')})
+    wandb.log({"gradio_link": wandb.Markdown(f'[OFC Gradio URL]({ofc.public_link})')})
 
     while True:
         changed = ofc.update()

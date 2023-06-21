@@ -15,8 +15,9 @@ import wandb
 import sys
 import copy
 import distutils
+import json
 
-DEFAULTS_FILE = 'defaults.ini'
+DEFAULTS_FILE = 'defaults.ini'  # override via --config-file
 
 def arg_eval(value):
     "this just packages some type checking for parsing args"
@@ -32,35 +33,92 @@ def setup_gin(gin_file):
     gin.parse_config_file(gin_file)
     return {}, '' # read_defaults is expected to return two things
 
+
+
+def read_config(config_file):
+    "read a config file, setup config dict"
+    suffix = Path(config_file).suffix
+    if '.gin' == suffix:  # "full gin compatibility" = ignore all other prefigure code ;-)
+        print(f"prefigure: Switching to gin mode for config file {config_file}")
+        config, config_text = setup_gin(config_file)
+    elif '.json' == suffix:  # if the config file itself is a json file
+        with open(config_file) as f:
+            config = json.load(f)
+        config_text = ''
+    elif '.ini' == suffix: 
+        configp = configparser.ConfigParser()
+        configp.optionxform = str                 # don't change uppercase to lowercase
+        configp.read(config_file)
+        config, config_text = dict(configp.items('DEFAULTS')), ''
+        with open(config_file) as f:
+            config_text = f.readlines()
+    else:
+        print (f"ERROR: Unknown config file extension: {suffix}.")
+        raise ValueError()
+    
+    return config, config_text
+
+
+class BareParser(argparse.ArgumentParser):
+    "lil thing just to get out the help message"
+    def error(self, e, message):
+        sys.stderr.write(f'ERROR: {message} {e}\n\n')
+        self.print_help()
+        sys.exit(2)
+
 def read_defaults(defaults_file=DEFAULTS_FILE):
-    "read the defaults file, setup defaults dict"
+    "read the defaults (config) file, setup defaults dict"
     p = argparse.ArgumentParser(add_help=False)
     p.add_argument('--config-file', required=False, default=defaults_file,
         help='name of local configuration (.ini) file')
     config_file = p.parse_known_args()[0].config_file
-    if '.gin' == Path(config_file).suffix:  # "full gin compatibility" = ignore all other prefigure code ;-)
-        print(f"prefigure: Switching to gin mode for config file {config_file}")
-        defaults, defaults_text = setup_gin(config_file)
-    else:
-        configp = configparser.ConfigParser()
-        configp.optionxform = str                 # don't change uppercase to lowercase
-        configp.read(config_file)
-        defaults, defaults_text = dict(configp.items('DEFAULTS')), ''
-        with open(config_file) as f:
-            defaults_text = f.readlines()
+    try:
+        defaults, defaults_text = read_config(config_file)
+    except Exception as e:
+        p = BareParser()
+        p.add_argument('--config-file', required=False, default=defaults_file,
+            help='name of local configuration (.ini) file')
+        args=p.parse_args()
+        p.error(e,f"Trouble reading {config_file}")
+        sys.exit(1)
     return defaults, defaults_text
+
+
+def parse_files_specified(args, debug=False):
+    "If the user has supplied args which are themselves config files, parse them"
+    # loop over everytning in args:
+    orig_args = copy.deepcopy(args)
+    for key, value in vars(orig_args).items():
+        if debug: print(f"parse_files_specified: key = {key}, value = {value}")
+        if (key in ['wandb_config','config_file']): continue  # don'e read in the basics a second time
+        if isinstance(value, str) and Path(value).suffix in ['.ini','.json','.gin']:
+            # if the arg is a string and the string is a path to a config file
+            # then parse it and add the args to the namespace
+            if debug: print(f"parse_files_specified: Parsing config file {value}")
+            new_value, value_text = read_config(value)
+            # for any of those, delete the namespace attribute before adding it below
+            #delattr(args, key)
+
+            if debug: print(f"parse_files_specified: Replacing the following in the namespace: {key}:{new_value}",)
+            #args = argparse.Namespace(**vars(args), **defaults)
+            setattr(args, key, new_value)
+    return args
+
+
 
 
 def setup_args(defaults, defaults_text='',):
     """combine defaults from .ini file and add parseargs arguments, 
         with help pull from .ini"""
     p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)  
+    # --help and the next few args are always there regardless of what user supplies
     p.add_argument('--config-file', required=False, default=DEFAULTS_FILE, #added so it appears on -h list
         help='name of local configuration (.ini) file')
-    p.add_argument('--name', required=False, default=None, help='name of the run')
+    #removing name as required arg. no more hand-holding:  p.add_argument('--name', required=False, default=None, help='name of the run')
     p.add_argument('--wandb-config', required=False,  help='wandb url to pull config from')
 
-    # add other command-line args using defaults .ini file
+
+    # add other CLI args using defaults .ini file, i.e. it determines what args are 'allowed'
     for key, value in defaults.items():
         if (key in ['wandb_config','config_file']): break
         help = ""
@@ -68,7 +126,7 @@ def setup_args(defaults, defaults_text='',):
             if key in defaults_text[i]:
                 help = defaults_text[i-1].replace('# ','')
         argname = '--'+key.replace('_','-')
-        if '--name' == argname: continue
+        #if '--name' == argname: continue
         val = Path(value) if ((type(value) == str) and ('_dir' in value)) else arg_eval(value)
         val_type = type(val)
         #print(f"argname: {argname}, val: {val}, val_type: {val_type}")
@@ -125,10 +183,14 @@ def get_all_args(defaults_file=DEFAULTS_FILE):
     #   3. Any new command-line arguments override whatever was set earlier
     args = setup_args(defaults, defaults_text=defaults_text) # 3. this time cmd-line overrides what's there
 
+
+    #  4. If any of the args are themselves config files, parse them
+    args = parse_files_specified(args)
+
     return args
 
 
 if __name__ == '__main__':
     # quick test
-    args = get_all_args(defaults_file='../examples/defaults.ini')
+    args = get_all_args(defaults_file='defaults.ini')#../examples/defaults.ini')
     print("args = ",args)
