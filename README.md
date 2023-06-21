@@ -136,7 +136,7 @@ model_config = ../../harmonai-tools/harmonai_tools/configs/model_configs/diffusi
 # dataset config file 
 dataset_config = ../../harmonai-tools/harmonai_tools/configs/dataset_configs/s3_wds_example.json
 
-imports = model_config, dataset_config(shazbot)
+imports = model_config, dataset_config
 ```
 In this case, both `args.model_config` and `args.dataset_config` will have their filename value string *replaced* by the dict(s) specified in the .json files given.  If they were not listed under `imports`, then the filename value will remain and no import will occur. 
 
