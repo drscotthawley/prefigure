@@ -56,19 +56,28 @@ push_wandb_config(wandb_logger, args)
 ```
 
 ### (Optional:) 4th & 5ths line to add: OFC
-```Python
-from prefigure import OFC
-...
-ofc = OFC(args)
-
-```
 Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (OFC, [pronounced like](https://getyarn.io/yarn-clip/f9a780c2-0690-4cc5-ba0f-139ef8a637a3) what you say when you realize you forget to set a variable properly). 
 This tracks any changes to arguments made to a separate file (by default `ofc.ini`) and
 updates those args dyanmically when changes to that file are made. It can also (optionally) log those changes to WandB (and when they occur); see sample usage below.
 
+```Python
+from prefigure import OFC
+...
+ofc = OFC(args)
+```
+or with the Gradio GUI, and only allowing OFC steering for certain variables (default is all are steerable): 
+```
+ofc = OFC(args, gui=True, steerables=['learning_rate','demo_every','demo_steps', 'num_demos','checkpoint_every', 'ema_decay']) 
+```
+
+If the GUI is enabled, you get a Gradio URL, which is also pushed to `wandb` (as "Media").  By default this URL is on `localhost`, however, 
+if environment variables `OFC_USERNAME` AND `OFC_PASSWORD` set, then a temporary public Gradio is obtained. (Since these public URLs expire after 72 hours, we re-launch the GUI every 71 hours and update the wandb)
+
+Also, if you set `sliders=True` when calling `OFC()`, the float and int variables will get sliders (with max & min guessed at by arg values).  Otherwise, the default is that all variables (excep `bool` types) are expressed via text fields.
+
 
 ## Sample usage:
-Here's a rough outline of some pytorch code. 
+Here's a rough outline of some pytorch code. See `examples/` for more.
 
 ```Python
 import torch

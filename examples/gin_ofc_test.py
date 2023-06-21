@@ -36,9 +36,8 @@ def main():
     wandb_logger = pl.loggers.WandbLogger(project=args.name)
     push_wandb_config(wandb_logger, args, omit=['training_dir']) # push config to wandb for use later
 
-    ofc = OFC(args, gui=True) 
-    print(f"OFC: Public link is {ofc.public_link}")
-    wandb.log({"gradio_link": wandb.Markdown(f'[OFC Gradio URL]({ofc.public_link})')})
+    ofc = OFC(args, gui=True, steerables=['learning_rate','demo_every','demo_steps', 'num_demos','checkpoint_every', 'ema_decay']) 
+    print(f"ofc.gradio_url = {ofc.gradio_url}")
 
     while True:
         changed = ofc.update()
