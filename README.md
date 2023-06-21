@@ -71,7 +71,7 @@ ofc = OFC(args, gui=True, steerables=['learning_rate','demo_every','demo_steps',
 ```
 
 If the GUI is enabled, you get a Gradio URL, which is also pushed to `wandb` (as "Media").  By default this URL is on `localhost`, however, 
-if environment variables `OFC_USERNAME` AND `OFC_PASSWORD` set, then a temporary public Gradio is obtained. (Since these public URLs expire after 72 hours, we re-launch the GUI every 71 hours and update the wandb)
+if environment variables `OFC_USERNAME` and `OFC_PASSWORD` are set, then a temporary public Gradio is obtained. (Since these temporary public URLs expire after 72 hours, we re-launch the GUI every 71 hours and update the link on WandB.)
 
 Also, if you set `sliders=True` when calling `OFC()`, the float and int variables will get sliders (with max & min guessed at by arg values).  Otherwise, the default is that all variables (excep `bool` types) are expressed via text fields.
 
