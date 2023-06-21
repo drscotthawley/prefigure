@@ -9,7 +9,7 @@ Combines argparse, configparser, and wandb.API.  WandB logging is done via `pyto
 ## Install:
 
 ```bash
-pip install prefigure wandb pytorch_lightning
+pip install prefigure wandb pytorch_lightning gradio
 ```
 
 
