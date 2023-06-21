@@ -84,6 +84,7 @@ import torch
 import torch.utils.data as data
 from prefigure import get_all_args, push_wandb_config, OFC
 import pytorch_lightning as pl
+import wandb
 
 def main():
 
