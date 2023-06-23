@@ -84,7 +84,7 @@ def read_defaults(defaults_file=DEFAULTS_FILE):
     return defaults, defaults_text
 
 
-def parse_imports(args, debug=True):
+def parse_imports(args, debug=False):
     "If the user has supplied args which are themselves config files, parse them"
     if not hasattr(args, 'imports'): return args
     orig_args = copy.deepcopy(args)  # not good to edit args while looping over args

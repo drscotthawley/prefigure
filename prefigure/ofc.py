@@ -26,15 +26,15 @@ class OFC(object):
                  ofc_file='ofc.ini', # file to which updated args are saved
                  gui=True,          # make da gui?
                  sliders=False,     # if True, use sliders instead of text boxes for float/int values, with min/max guessed at from args
-                 steerables=None,   # list of names of args allowed to steer. None or [] means (ironically?) all args are steerable
+                 steerables=None,   # list of names of args allowed to steer. None or [] means Nothing is steerable
                  use_wandb=True,    # make use of wandb for logging changes etc
                  ):
         "NOTE: ofc_file should be given a unique name if multiple similar runs are occuring"
         self.ofc_file = args.name+'-'+ofc_file
-        self.gui = gui or args.gui
+        self.gui = gui or (hasattr(args,"gui") and args.gui)
         self.args = args
         self.section_name = 'STEERABLES'
-        self.steerables = steerables if steerables else args.__dict__.keys() # Not all args need be steerable
+        self.steerables = steerables if steerables else [] # Not all args need be steerable
         self.use_wandb = use_wandb
         self.debug = False
         self.gradio_url, self.demo, self.demo_datetime = '', None, None

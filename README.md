@@ -57,17 +57,17 @@ push_wandb_config(wandb_logger, args)
 
 ### (Optional:) 4th & 5ths line to add: OFC
 Starting with `prefigure` v0.0.8, there is an On-the-Fly Control (OFC, [pronounced like](https://getyarn.io/yarn-clip/f9a780c2-0690-4cc5-ba0f-139ef8a637a3) what you say when you realize you forget to set a variable properly). 
-This tracks any changes to arguments made to a separate file (by default `ofc.ini`) and
+This tracks any changes to arguments listed as "steerable" by logging to a separate file (by default `ofc.ini`) and
 updates those args dyanmically when changes to that file are made. It can also (optionally) log those changes to WandB (and when they occur); see sample usage below.
 
 ```Python
 from prefigure import OFC
 ...
-ofc = OFC(args)
+ofc = OFC(args, steerables=vars(args).keys())  # allow all args to be steerable
 ```
-or with the Gradio GUI, and only allowing OFC steering for certain variables (default is all are steerable): 
+or fancier: with the Gradio GUI, and only allowing OFC steering for certain variables (default is all are steerable), and only launch one GUI for a DDP PyTorch Lightning process: 
 ```
-ofc = OFC(args, gui=True, steerables=['learning_rate','demo_every','demo_steps', 'num_demos','checkpoint_every', 'ema_decay']) 
+ofc = OFC(args, gui=(trainer.global_rank==0), steerables=['lr','demo_every','demo_steps', 'num_demos','checkpoint_every']) 
 ```
 
 If the GUI is enabled, you get a Gradio URL, which is also pushed to `wandb` (as "Media").  By default this URL is on `localhost`, however, 
