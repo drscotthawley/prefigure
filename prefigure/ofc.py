@@ -11,46 +11,53 @@ from prefigure import get_all_args, arg_eval
 import configparser
 import gradio as gr
 import gradio.blocks as gb
-import copy
 import itertools
+from copy import deepcopy
 import os
 import warnings 
 import wandb
 from datetime import datetime, timedelta
-
+from collections import OrderedDict
 
 class OFC(object):
     "On-the-Fly Control: Saves args to a new file, updates 'args' when changes occur to file"
     def __init__(self, 
-                 args, 
+                 args,               # namespace object is *mutable*
                  ofc_file='ofc.ini', # file to which updated args are saved
-                 gui=True,          # make da gui?
+                 use_gui=True,       # make da gui?
                  sliders=False,     # if True, use sliders instead of text boxes for float/int values, with min/max guessed at from args
                  steerables=None,   # list of names of args allowed to steer. None or [] means Nothing is steerable
                  use_wandb=True,    # make use of wandb for logging changes etc
+                 debug=False,
                  ):
         "NOTE: ofc_file should be given a unique name if multiple similar runs are occuring"
         self.ofc_file = args.name+'-'+ofc_file
-        self.gui = gui or (hasattr(args,"gui") and args.gui)
-        self.args = args
-        self.section_name = 'STEERABLES'
+        self.args = args   
+        self.use_gui = use_gui or (hasattr(args,"use_gui") and args.use_gui)
+        self.sliders = sliders
         self.steerables = steerables if steerables else [] # Not all args need be steerable
-        self.use_wandb = use_wandb
-        self.debug = False
+        self.use_wandb, self.debug = use_wandb, debug
+
+        self.section_name = 'OFC'
         self.gradio_url, self.demo, self.demo_datetime = '', None, None
-        self.columns, self.sliders = None, sliders
+        self.columns = None
+        self.args_gui_dict = OrderedDict()     # where we will keep the gui values
+
         self.save(args)
-        if self.gui: self.create_gradio_interface(sliders=sliders)
+        if self.use_gui: self.create_gradio_interface(sliders=sliders)
+
 
     def save(self, args):
         "saves all steerable params (args) as new INI file"
         config = configparser.ConfigParser()
         config.add_section(self.section_name)
         for key, val in vars(args).items():
+            if self.debug: print("OFC.save: Saving ",key," = ",val," to ",self.ofc_file)
             config[self.section_name][key] = str(val)
         if self.debug: print("OFC.save: Saving to ",self.ofc_file)
         with open(self.ofc_file, 'w') as f:
             config.write(f)
+
 
     def update(self):
         "generic update loop; find out which variables have changed; see if gui needs relaunching"
@@ -68,7 +75,8 @@ class OFC(object):
                     changed[key] = val
                     vars(self.args)[key] = val    # NOTE: THIS will overwrite values in args.
 
-        if self.gui and self.demo and (not '127.0.0.1' in self.gradio_url) and (self.demo_datetime is not None)  and (self.demo_datetime - datetime.now() >= timedelta(hours=71)): 
+        # relaunch gui before temp url expires
+        if self.use_gui and self.demo and (not '127.0.0.1' in self.gradio_url) and (self.demo_datetime is not None)  and (self.demo_datetime - datetime.now() >= timedelta(hours=71)): 
             print("OFC: Not long now til Gradio public temp URL would expire. Relaunching GUI.")
             self.create_gradio_interface(columns=self.columns, sliders=self.sliders)
             
@@ -92,11 +100,14 @@ class OFC(object):
         return input_element
 
 
-    def create_gradio_interface(self, columns=3, sliders=False):
+    def create_gradio_interface(self, 
+                                sliders=False,  # turns on sliders for floats & ints; default is all text fields
+                                columns=3, ):
         "for all variables in args, create gui elements"
+        self.columns, self.sliders = columns, sliders     # update storage viewed elsewhere
+
         inputs = []
-        args_dict = vars(self.args)
-        self.columns, self.sliders = columns, sliders
+        args_dict =  vars(self.args)
         column_length = len(args_dict)//columns
         with gr.Blocks(title="OFC", theme=gr.themes.Base()) as demo:
             gr.Markdown(f'<center><h1>prefigure: On-the-Fly Control (OFC)</h1></center>')        
@@ -107,6 +118,7 @@ class OFC(object):
                             if key=='gui': continue  # don't add 'gui' var to gui
                             if key not in self.steerables: continue
                             if self.debug: print("key = ",key," value = ",value,", type = ",type(value))
+                            self.args_gui_dict[key] = value
                             input_element = self.create_gui_element(key,value, sliders=sliders)
                             inputs.append(input_element)
             submit_button = gr.Button(value="Submit", variant='primary',)
@@ -125,18 +137,29 @@ class OFC(object):
         print(f"Demo launched. Gradio URL is {gradio_url} Moving on.")
         if self.use_wandb and wandb.run is not None:
             wandb.log({"gradio_url": wandb.Html(f'OFC Gradio URL = <a href="{gradio_url}" target="_blank">{gradio_url}</a>')})
+            demo.integrate(wandb=wandb)
         self.gradio_url = gradio_url   # can access via ofc.gradio_url hook 
-        #self.demo = demo  # save in case might need to redeploy before gradio's 72 hour limit
         self.demo_datetime = datetime.now()  # save time of deployment
 
 
-    def on_gui_submit(self, *args_gui):
+    def on_gui_submit(self, 
+                      *gui_values, # tuple of gui values but no keys :-/ 
+                      ):
         "writes to the ofc file, then updates the args. detection of param type (float, int, etc.) performed by file reader"
-        args_copy = copy.copy(self.args)
-        args_dict = vars(args_copy)
-        filtered_args = [attr_name for attr_name in args_dict.keys() if not attr_name.startswith("__")]
-        for value, attr_name in zip(args_gui, filtered_args):
-            setattr(args_copy, attr_name, value)
+        if self.debug: print(f"gui_values = {gui_values}, type = {type(gui_values)}")
+
+        # update args_gui_dict with new values from gui submit
+        for key, new_val in zip(self.args_gui_dict.keys(), gui_values):
+            self.args_gui_dict[key] = new_val
+       
+        # update a copy of args with args_gui_dict values
+        args_copy = deepcopy(self.args)
+        for key in vars(args_copy).keys():
+            for key2 in self.args_gui_dict.keys():
+                if key == key2:
+                    vars(args_copy)[key] = self.args_gui_dict[key2]
+                
+        # save args_copy to file and update to fill args
         self.save(args_copy) 
         self.update() 
 
@@ -147,8 +170,7 @@ if __name__ == '__main__':
     args = get_all_args(defaults_file='../examples/defaults.ini')
     args.name = 'test'
     print("args = \n",args)
-    ofc = OFC(args, gui=True)
+    ofc = OFC(args, use_gui=True)
     while True:
-        #print("\nargs = ",args)
         changed = ofc.update()
         time.sleep(2)
